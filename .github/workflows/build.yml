@@ -31,8 +31,6 @@ on:
         - JCG-Q20
         - JCG-Q20-PB
         - JCG-Y2
-        - JDCLOUD-RE-CP-02
-        - JDCLOUD-RE-SP-01B
         - K2P
         - K2P-NANO
         - K2P-USB
@@ -53,6 +51,8 @@ on:
         - NEWIFI3
         - QM-B1
         - R2100
+        - RE-CP-02
+        - RE-SP-01B
         - RM2100
         - RT-AC85P
         - SIM-AX1800T
@@ -103,7 +103,7 @@ on:
         description: 'String JSON list of plug-ins'
         required: true
         type: string
-        default: '{"ss":"y","v2ray":"n","xray":"y","trojan":"y","ssobfs":"y","smartdns":"y","vlmcsd":"y","ttyd":"n","iperf3":"n"}'
+        default: '{"ss":"y","v2ray":"n","xray":"y","trojan":"y","ssobfs":"y","smartdns":"y","vlmcsd":"n","ttyd":"n","iperf3":"n","aliddns":"y","adguardhome":"y"}'
       customization:
         description: 'String JSON list of Customization'
         required: true
@@ -125,9 +125,9 @@ env:
   FIRMWARE_AUTHOR: TurBoTse
   FIRMWARE_BRANCH: main
   FIRMWARE_REPO: padavan
-  FIRMWARE_URL: https://github.com/TurBoTse/padavan.git
+  FIRMWARE_URL: https://github.com/KuniJiwa/padavan.git
   TOOLCHAIN_ROOT: toolchain/toolchain-mipsel
-  TOOLCHAIN_URL: https://github.com/TurBoTse/padavan/releases/download/toolchain
+  TOOLCHAIN_URL: https://github.com/KuniJiwa/padavan/releases/download/toolchain
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -183,6 +183,8 @@ jobs:
           echo "vlmcsd=${{fromJson(inputs.plugins).vlmcsd}}" >> $GITHUB_ENV
           echo "ttyd=${{fromJson(inputs.plugins).ttyd}}" >> $GITHUB_ENV
           echo "iperf3=${{fromJson(inputs.plugins).iperf3}}" >> $GITHUB_ENV
+          echo "aliddns=${{fromJson(inputs.plugins).aliddns}}" >> $GITHUB_ENV
+          echo "aliddns=${{fromJson(inputs.plugins).adguardhome}}" >> $GITHUB_ENV
       - name: Compile the nano version
         if: ${{ github.event.inputs.nanoversion == 'true' }}
         run: |
@@ -190,7 +192,7 @@ jobs:
           for M in ${{ matrix.target }}; do if [ -f $M.config ]; then
             for MOD in ANTFS FAT EXFAT EXT2 EXT3 EXT4 XFS FUSE SWAP; do
               sed -i "s/CONFIG_FIRMWARE_ENABLE_${MOD}=y/CONFIG_FIRMWARE_ENABLE_${MOD}=n/" $M.config; done
-            for MOD in UVC HID SERIAL AUDIO XFRM QOS IMQ IFB NFSD NFSC CIFS NTFS_3G LPRD U2EC TCPDUMP HDPARM PARTED SMBD WINS SMBD_SYSLOG FTPD RPL2TP EAP_PEAP HTTPS SFTP DROPBEAR_FAST_CODE OPENSSH OPENVPN SSWAN OPENSSL_EC OPENSSL_EXE XUPNPD MINIDLNA FIREFLY FFMPEG_NEW TRANSMISSION TRANSMISSION_WEB_CONTROL ARIA ARIA_WEB_CONTROL CURL SCUTCLIENT GDUT_DRCOM DOGCOM MINIEAP NJIT_CLIENT SOFTETHERVPN_SERVER SOFTETHERVPN_CLIENT SOFTETHERVPN_CMD VLMCSD TTYD LITE LRZSZ HTOP NANO IPERF3 DUMP1090 RTL_SDR MTR SOCAT SRELAY MENTOHUST FRPC FRPS REDSOCKS SHADOWSOCKS XRAY V2RAY TROJAN SSOBFS SINGBOX NAIVEPROXY ADBYBY DNSFORWARDER SMARTDNS ADGUARDHOME ZEROTIER ALIDDNS DDNSTO ALDRIVER SQM WIREGUARD; do
+            for MOD in UVC HID SERIAL AUDIO XFRM QOS IMQ IFB NFSD NFSC CIFS NTFS_3G LPRD U2EC TCPDUMP HDPARM PARTED SMBD WINS SMBD_SYSLOG FTPD RPL2TP EAP_PEAP HTTPS SFTP DROPBEAR_FAST_CODE OPENSSH OPENVPN SSWAN OPENSSL_EC OPENSSL_EXE XUPNPD MINIDLNA FIREFLY FFMPEG_NEW TRANSMISSION TRANSMISSION_WEB_CONTROL ARIA ARIA_WEB_CONTROL CURL SCUTCLIENT GDUT_DRCOM DOGCOM MINIEAP NJIT_CLIENT SOFTETHERVPN_SERVER SOFTETHERVPN_CLIENT SOFTETHERVPN_CMD VLMCSD TTYD LITE LRZSZ HTOP NANO IPERF3 DUMP1090 RTL_SDR MTR SOCAT SRELAY MENTOHUST FRPC FRPS REDSOCKS SHADOWSOCKS XRAY V2RAY TROJAN SSOBFS SINGBOX NAIVEPROXY ADBYBY DNSFORWARDER SMARTDNS ZEROTIER DDNSTO ALDRIVER SQM WIREGUARD; do
               sed -i "s/CONFIG_FIRMWARE_INCLUDE_${MOD}=y/CONFIG_FIRMWARE_INCLUDE_${MOD}=n/" $M.config; done
           fi; done
       - name: Modify and customize
@@ -216,6 +218,8 @@ jobs:
           echo "CONFIG_FIRMWARE_INCLUDE_VLMCSD=${{env.vlmcsd}}" >> .config
           echo "CONFIG_FIRMWARE_INCLUDE_TTYD=${{env.ttyd}}" >> .config
           echo "CONFIG_FIRMWARE_INCLUDE_IPERF3=${{env.iperf3}}" >> .config
+          echo "CONFIG_FIRMWARE_INCLUDE_IPERF3=${{env.aliddns}}" >> .config
+          echo "CONFIG_FIRMWARE_INCLUDE_IPERF3=${{env.adguardhome}}" >> .config
           # cpufreq
           if ${{ github.event.inputs.cpufreq == 'true' }}; then
             echo "CONFIG_FIRMWARE_INCLUDE_OC=y" >> .config
